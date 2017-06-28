@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "audioTools.h"
 
+
+
 #define tableSize 2048
 class ofApp : public ofBaseApp{
 
@@ -29,7 +31,9 @@ class ofApp : public ofBaseApp{
     int sampleRate;
     int bufferSize;
     
-    smoothValue frequency;
+    //smoothValue frequency;
+	parameterSmoother2 frequency;
+	float freqSmoothTime = 1000;
     double phaseInc;
     double phase;
     

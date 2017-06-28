@@ -6,9 +6,13 @@ void ofApp::setup(){
     int sampleRate = 48000;
     int bufferSize = 512;
     
-    frequency.targetValue = 440;
-    frequency.currentValue = 440;
-    frequency.smoother = new parameterSmoother(1000, sampleRate);
+    //frequency.targetValue = 440;
+    //frequency.currentValue = 440;
+    //frequency.smoother = new parameterSmoother(1000, sampleRate);
+	
+	frequency = parameterSmoother2( freqSmoothTime, sampleRate);
+	frequency.setTarget(440);
+
     phase = 0;
     
     waveTable = new float[tableSize];
@@ -22,7 +26,8 @@ void ofApp::setup(){
     }
     
     tableFundamentalFreq = sampleRate/float(tableSize);
-    phaseInc = frequency.currentValue/tableFundamentalFreq;
+    //phaseInc = frequency.currentValue/tableFundamentalFreq;
+	phaseInc = 440 / tableFundamentalFreq;
     
     ofSoundStreamSetup(2, 0, sampleRate, bufferSize, 4);
 
@@ -42,15 +47,17 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     waveForm.draw();
+	ofDrawBitmapString("freq smooth time " + ofToString(freqSmoothTime), 20, 200);
 }
 //--------------------------------------------------------------
 void ofApp::audioOut(float* buffer, int bufferSize, int nChannels){
     for(int i = 0; i < bufferSize; i++){
         
         
-        frequency.currentValue = frequency.smoother->process(frequency.targetValue);
-        phaseInc = frequency.currentValue/tableFundamentalFreq;
-        
+        //frequency.currentValue = frequency.smoother->process(frequency.targetValue);
+        //phaseInc = frequency.currentValue/tableFundamentalFreq;
+		phaseInc = frequency.getSmoothed() / tableFundamentalFreq;
+
         float currentSample = linearInterp(waveTable[(int)phase], waveTable[int(phase+1)], phase);
         currentSample *= 0.1;
         phase += phaseInc;
@@ -64,7 +71,16 @@ void ofApp::audioOut(float* buffer, int bufferSize, int nChannels){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+	switch (key) {
+	case OF_KEY_UP :
+		freqSmoothTime *= 2;
+		frequency.changeSmoothingTimeMS(freqSmoothTime);
+		break;
+	case OF_KEY_DOWN:
+		freqSmoothTime *= 0.5;
+		frequency.changeSmoothingTimeMS(freqSmoothTime);
+		break;
+	}
 }
 
 //--------------------------------------------------------------
@@ -77,8 +93,8 @@ void ofApp::mouseMoved(int x, int y ){
     
     float octave = ofMap(x, 0, ofGetWidth(), 4, 14.5);
     
-    frequency.targetValue = pow(2, octave);
-    
+    //frequency.targetValue = pow(2, octave);
+	frequency.setTarget(pow(2, octave));
 
 }
 

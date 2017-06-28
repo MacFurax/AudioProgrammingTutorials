@@ -70,6 +70,69 @@ struct smoothValue {
 	parameterSmoother* smoother;
 };
 
+class parameterSmoother2 {
+public:
+
+	parameterSmoother2() {
+		currentValue = 0;
+		targetValue = 0;
+	}
+
+	parameterSmoother2(float _smoothingTimeMS, int _sampleRate) {
+		smoothingTimeMS = _smoothingTimeMS;
+		sampleRate = _sampleRate;
+		setup();
+	}
+
+	void setup(float _smoothingTimeMS, int _sampleRate) {
+		smoothingTimeMS = _smoothingTimeMS;
+		sampleRate = _sampleRate;
+		setup();
+	}
+
+	void setup() {
+		a = exp(-TWO_PI / (smoothingTimeMS * 0.001 * sampleRate));
+		b = 1.0 - a;
+		z = 0.0;
+	}
+
+	void changeSmoothingTimeMS(float _smoothingTimeMS) {
+		smoothingTimeMS = _smoothingTimeMS;
+		a = exp(-TWO_PI / (smoothingTimeMS * 0.001 * sampleRate));
+		b = 1.0 - a;
+		//();
+	}
+
+	
+
+	void setTarget(float in) {
+		targetValue = in;
+	}
+
+	float getSmoothed() {
+		process();
+		return currentValue;
+	}
+
+private:
+	float a;
+	float b;
+	float z;
+
+	float smoothingTimeMS;
+	int sampleRate;
+
+	float targetValue;
+	float currentValue;
+
+	void process() {
+		z = (targetValue * b) + (z * a);
+		currentValue = z;
+		//return z;
+	}
+
+};
+
 inline float linearInterp(float x0, float x1, float y0, float y1, float x){
 
 	if (x1 == x0) { return 0; }//avoid divideBy0
